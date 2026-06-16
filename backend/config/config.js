@@ -1,0 +1,26 @@
+require('dotenv').config();
+
+module.exports = {
+  port: process.env.PORT || 3000,
+  jwtSecret: process.env.JWT_SECRET || 'heritage-lacquer-museum-secret-key-2024',
+  jwtExpiresIn: '7d',
+  dbPath: './heritage.db',
+  uploadDir: './uploads',
+  platformStats: {
+    userBase: parseInt(process.env.PLATFORM_USER_BASE, 10) || 1560,
+    pageViewBase: parseInt(process.env.PLATFORM_PAGEVIEW_BASE, 10) || 246000
+  },
+  // 大语言模型 API（OpenAI 兼容格式，如 DeepSeek / OpenAI / 通义等）
+  llm: {
+    apiKey: process.env.LLM_API_KEY || 'sk-5c891350d6ce453ab1fc1f2b41fa9eef',
+    baseUrl: (process.env.LLM_API_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, ''),
+    model: process.env.LLM_MODEL || 'deepseek-chat',
+    timeout: parseInt(process.env.LLM_TIMEOUT, 10) || 60000,
+    // 本地 Ollama 已暂停，仅当显式设为 true 时才启用
+    useOllama: process.env.LLM_USE_OLLAMA === 'true',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaModel: process.env.OLLAMA_MODEL || 'deepseek-r1:8b'
+  }
+};
+
+
