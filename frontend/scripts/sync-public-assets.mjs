@@ -60,17 +60,22 @@ let missing = [];
 
 console.log('同步本地静态图片到 frontend/public/ ...\n');
 
-// 1. 项目根 Picture/ -> public/Picture/
-const pictureRoot = path.join(ROOT, 'Picture');
+// 1. Picture/ -> public/Picture/（优先 frontend/Picture，兼容项目根 Picture/）
+const pictureCandidates = [
+  path.resolve(__dirname, '../Picture'),
+  path.join(ROOT, 'Picture')
+];
+const pictureRoot = pictureCandidates.find((dir) => fs.existsSync(dir));
 const picturePublic = path.join(PUBLIC, 'Picture');
-if (fs.existsSync(pictureRoot)) {
+if (pictureRoot) {
   copied += copyDir(pictureRoot, picturePublic);
   console.log(`✓ Picture/ 已同步 (${pictureRoot})`);
 } else {
-  missing.push('Picture/');
+  missing.push('Picture/（frontend/Picture 或项目根 Picture）');
 }
 
 // 2. 确保 heritage 常用文件名存在（webp 与 jpg 共用同一文件）
+if (pictureRoot) {
 for (const item of HERITAGE_PUBLIC_MAP) {
   const src = path.join(pictureRoot, item.src);
   if (!fs.existsSync(src)) continue;
@@ -78,6 +83,7 @@ for (const item of HERITAGE_PUBLIC_MAP) {
     const dest = path.join(picturePublic, name);
     if (copyFile(src, dest)) copied += 1;
   }
+}
 }
 
 // 3. assets/masters/ -> public/masters/
@@ -112,6 +118,10 @@ const worksDest = path.join(PUBLIC, 'works');
 ensureDir(worksDest);
 for (const [destName, srcCandidates] of Object.entries(WORK_IMAGE_MAP)) {
   let done = false;
+  if (!pictureRoot) {
+    missing.push(`works/${destName}`);
+    continue;
+  }
   for (const candidate of srcCandidates) {
     const src = path.join(pictureRoot, candidate);
     if (copyFile(src, path.join(worksDest, destName))) {
