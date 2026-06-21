@@ -121,6 +121,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import * as echarts from 'echarts';
 import { DataAnalysis, MapLocation } from '@element-plus/icons-vue';
 import { mastersAPI } from '../api/masters';
+import { registerChinaMap } from '../utils/chinaMap';
 
 const barChartRef = ref(null);
 const mapChartRef = ref(null);
@@ -198,7 +199,7 @@ const legendItems = computed(() => {
   ];
 });
 
-const initCharts = () => {
+const initCharts = async () => {
   if (!barChartRef.value || !mapChartRef.value) return;
   
   barChart = echarts.init(barChartRef.value);
@@ -320,13 +321,14 @@ const initCharts = () => {
   
   barChart.setOption(barOption);
   
-  // 加载地图数据
-  fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
-    .then(response => response.json())
-    .then(geoJson => {
-      echarts.registerMap('china', geoJson);
-      
-      const mapOption = {
+  const mapRegistered = await registerChinaMap('china');
+  if (!mapRegistered) {
+    console.error('地图数据加载失败');
+    window.addEventListener('resize', handleResize);
+    return;
+  }
+
+  const mapOption = {
         tooltip: {
           trigger: 'item',
           formatter: (params) => {
@@ -425,11 +427,7 @@ const initCharts = () => {
           }
         }
       });
-    })
-    .catch(error => {
-      console.error('地图数据加载失败:', error);
-    });
-  
+
   // 响应窗口大小变化
   window.addEventListener('resize', handleResize);
 };

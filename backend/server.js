@@ -17,13 +17,19 @@ const platformRoutes = require('./routes/platform');
 
 const app = express();
 
-// 中间件
-app.use(cors());
+// CORS：生产环境可设置 FRONTEND_URL 限制来源
+const corsOptions = config.frontendUrl
+  ? { origin: [config.frontendUrl], credentials: true }
+  : undefined;
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 静态文件服务（用于上传的图片）
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const uploadStaticDir = path.isAbsolute(config.uploadDir)
+  ? config.uploadDir
+  : path.resolve(__dirname, config.uploadDir.replace(/^\.\//, ''));
+app.use('/uploads', express.static(uploadStaticDir));
 
 // 路由
 app.use('/api/auth', authRoutes);

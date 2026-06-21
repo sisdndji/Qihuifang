@@ -1,7 +1,7 @@
 <template>
   <div class="master-card card-lacquer" @click="handleClick">
     <div class="card-avatar">
-      <el-avatar :size="80" :src="avatarUrl || defaultAvatar" fit="cover">
+      <el-avatar :size="80" :src="resolvedAvatarUrl" fit="cover">
         {{ name.charAt(0) }}
       </el-avatar>
     </div>
@@ -31,6 +31,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Location } from '@element-plus/icons-vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const props = defineProps({
   name: String,
@@ -45,6 +46,8 @@ const props = defineProps({
 const emit = defineEmits(['click']);
 
 const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNEOEI4NzciLz48dGV4dCB4PSI1MCUiIHk9IjU1JSIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzRBMkEyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaXoDwvdGV4dD48L3N2Zz4=';
+
+const resolvedAvatarUrl = computed(() => resolveMediaUrl(props.avatarUrl) || defaultAvatar);
 
 const skillTagsArray = computed(() => {
   if (!props.skillTags) return [];

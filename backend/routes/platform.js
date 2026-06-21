@@ -61,7 +61,7 @@ router.get('/stats', (req, res) => {
 });
 
 // 记录一次页面访问并返回最新统计
-router.post('/visit', (req, res) => {
+function recordVisit(res) {
   db.run(
     `UPDATE platform_stats
      SET page_views = page_views + 1, updated_at = CURRENT_TIMESTAMP
@@ -79,6 +79,11 @@ router.post('/visit', (req, res) => {
       });
     }
   );
-});
+}
+
+router.post('/visit', (req, res) => recordVisit(res));
+
+// GET 便于部分部署环境避免 CORS 预检
+router.get('/visit', (req, res) => recordVisit(res));
 
 module.exports = router;

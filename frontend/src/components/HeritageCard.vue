@@ -1,6 +1,6 @@
 <template>
   <div class="heritage-card card-lacquer" @click="handleClick">
-    <div class="card-image" :style="{ backgroundImage: `url(${imageUrl || defaultImage})` }">
+    <div class="card-image" :style="{ backgroundImage: `url(${resolvedImageUrl})` }">
       <div class="card-badge">{{ level }}</div>
     </div>
     <div class="card-content">
@@ -21,7 +21,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Location, Collection } from '@element-plus/icons-vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const props = defineProps({
   title: String,
@@ -36,6 +38,8 @@ const props = defineProps({
 const emit = defineEmits(['click']);
 
 const defaultImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRDdDMEE1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM0QjQ2M0YiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lm77niYfliqDovb3lpKflrabljLc8L3RleHQ+PC9zdmc+';
+
+const resolvedImageUrl = computed(() => resolveMediaUrl(props.imageUrl) || defaultImage);
 
 const handleClick = () => {
   if (props.id) {

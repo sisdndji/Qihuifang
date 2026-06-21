@@ -31,7 +31,7 @@
           <!-- 传承人信息卡片 -->
           <div class="master-info-card card-lacquer">
             <div class="master-avatar-section">
-              <el-avatar :size="120" :src="getAvatarUrl()">
+              <el-avatar :size="120" :src="avatarUrl">
                 {{ masterInfo.name && masterInfo.name.charAt(0) || '李' }}
               </el-avatar>
               <h3 class="master-name">{{ masterInfo.name }}</h3>
@@ -67,8 +67,8 @@
                 <el-table-column label="作品图片" width="100">
                   <template #default="{ row }">
                     <el-image
-                      :src="row.image_url || defaultImage"
-                      :preview-src-list="[row.image_url || defaultImage]"
+                      :src="resolveMediaUrl(row.image_url) || defaultImage"
+                      :preview-src-list="[resolveMediaUrl(row.image_url) || defaultImage]"
                       fit="cover"
                       style="width: 60px; height: 60px; border-radius: 4px;"
                     />
@@ -115,6 +115,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import MainContainer from '../components/MainContainer.vue';
 import WorkForm from '../components/WorkForm.vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const loading = ref(false);
 const works = ref([]);
@@ -205,32 +206,10 @@ const handleVideoError = () => {
   console.warn('视频加载失败');
 };
 
-// 获取头像URL，处理各种路径格式
-const getAvatarUrl = () => {
-  // 优先使用 public/images/masters/chenzaitian.jpg
-  if (!masterInfo.value) return '/images/masters/chenzaitian.jpg';
-  
-  const avatarUrl = masterInfo.value.avatar_url;
-  if (!avatarUrl) return '/images/masters/chenzaitian.jpg';
-  
-  // 如果已经是完整路径（以/开头），直接返回
-  if (avatarUrl.startsWith('/')) {
-    return avatarUrl;
-  }
-  
-  // 如果是完整URL，直接返回
-  if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
-    return avatarUrl;
-  }
-  
-  // 如果是uploads路径（没有斜杠），添加斜杠
-  if (avatarUrl.startsWith('uploads/')) {
-    return '/' + avatarUrl;
-  }
-  
-  // 其他情况，添加斜杠
-  return '/' + avatarUrl;
-};
+// 头像 URL（上传图走后端域名）
+const avatarUrl = computed(() =>
+  resolveMediaUrl(masterInfo.value?.avatar_url) || '/masters/linan.jpg'
+);
 
 onMounted(() => {
   fetchMasterInfo();

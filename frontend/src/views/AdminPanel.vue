@@ -89,8 +89,12 @@
               </template>
             </el-upload>
             <div v-if="uploadedUrl" class="upload-result">
-              <p>上传成功！文件地址：</p>
+              <p>上传成功！请复制下方路径填入表单（数据库存相对路径即可）：</p>
               <el-input v-model="uploadedUrl" readonly />
+              <div v-if="uploadPreviewUrl" class="upload-preview">
+                <img :src="uploadPreviewUrl" alt="上传预览" @error="previewError = true" />
+                <p v-if="previewError" class="upload-preview-tip">预览失败时请确认已配置 PUBLIC_BASE_URL / VITE_API_BASE_URL</p>
+              </div>
             </div>
           </div>
         </el-tab-pane>
@@ -137,6 +141,8 @@ import HeritageForm from '../components/HeritageForm.vue';
 import MasterForm from '../components/MasterForm.vue';
 import WorkForm from '../components/WorkForm.vue';
 import axiosInstance from '../api/axiosInstance';
+import { uploadUrl as apiUploadUrl } from '../config/api';
+import { resolveMediaUrl } from '../utils/media';
 
 const authStore = useAuthStore();
 
@@ -149,11 +155,13 @@ const dialogTitle = ref('');
 const dialogComponent = ref(null);
 const formData = ref({});
 const uploadedUrl = ref('');
+const uploadPreviewUrl = ref('');
+const previewError = ref(false);
 const loadingHeritage = ref(false);
 const loadingMasters = ref(false);
 const loadingWorks = ref(false);
 
-const uploadUrl = computed(() => '/api/upload');
+const uploadUrl = computed(() => apiUploadUrl);
 const uploadHeaders = computed(() => ({
   Authorization: `Bearer ${authStore.token}`
 }));
@@ -330,7 +338,9 @@ const beforeUpload = (file) => {
 };
 
 const handleUploadSuccess = (response) => {
-  uploadedUrl.value = response.url;
+  uploadedUrl.value = response.path || response.url;
+  uploadPreviewUrl.value = resolveMediaUrl(uploadedUrl.value);
+  previewError.value = false;
   ElMessage.success('上传成功！');
 };
 
@@ -393,6 +403,25 @@ onMounted(() => {
     margin-bottom: 8px;
     color: var(--text-secondary);
   }
+}
+
+.upload-preview {
+  margin-top: 12px;
+  text-align: center;
+
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-light);
+    object-fit: contain;
+  }
+}
+
+.upload-preview-tip {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-primary);
 }
 </style>
 

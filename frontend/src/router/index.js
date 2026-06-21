@@ -20,6 +20,18 @@ const routes = [
 
   {
 
+    path: '/register',
+
+    name: 'Register',
+
+    component: () => import('../views/Register.vue'),
+
+    meta: { isFrontend: true }
+
+  },
+
+  {
+
     path: '/',
 
     name: 'Home',
@@ -194,6 +206,10 @@ router.beforeEach((to, from, next) => {
 
   const isFrontendLogin = to.name === 'Login';
 
+  const isFrontendRegister = to.name === 'Register';
+
+  const isAuthPage = isFrontendLogin || isFrontendRegister;
+
 
 
   // 后台区域（不含登录页）
@@ -254,7 +270,7 @@ router.beforeEach((to, from, next) => {
 
   // 前台页面：未登录跳转前台登录
 
-  if (!authStore.isAuthenticated && !isFrontendLogin) {
+  if (!authStore.isAuthenticated && !isAuthPage) {
 
     next('/login');
 
@@ -264,9 +280,9 @@ router.beforeEach((to, from, next) => {
 
 
 
-  // 已登录访问前台登录页，回首页
+  // 已登录访问登录/注册页，回首页
 
-  if (authStore.isAuthenticated && isFrontendLogin) {
+  if (authStore.isAuthenticated && isAuthPage) {
 
     next('/');
 

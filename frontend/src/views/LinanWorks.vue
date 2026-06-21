@@ -15,7 +15,7 @@
         >
           <div class="work-image">
             <img
-              :src="work.image_url || defaultImage"
+              :src="resolveMediaUrl(work.image_url) || defaultImage"
               :alt="work.title"
               @error="handleImageError"
             />
@@ -66,7 +66,7 @@
         <div v-if="selectedWork" class="work-detail">
           <div class="detail-image">
             <img
-              :src="selectedWork.image_url || defaultImage"
+              :src="resolveMediaUrl(selectedWork.image_url) || defaultImage"
               :alt="selectedWork.title"
             />
           </div>
@@ -117,6 +117,7 @@ import { ref, onMounted } from 'vue';
 import { worksAPI } from '../api/works';
 import { mastersAPI } from '../api/masters';
 import MainContainer from '../components/MainContainer.vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const loading = ref(false);
 const works = ref([]);

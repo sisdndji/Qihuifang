@@ -102,6 +102,7 @@ import { worksAPI } from '../api/works';
 import { heritageAPI } from '../api/heritage';
 import { VideoPlay, VideoPause, LocationFilled } from '@element-plus/icons-vue';
 import StatPanel from '../components/StatPanel.vue';
+import { registerChinaMap } from '../utils/chinaMap';
 
 // 主题颜色常量（与 theme.scss 保持一致）
 const themeColors = {
@@ -203,8 +204,25 @@ const initCharts = async () => {
 // 加载工序图表
 const loadProcessChart = async () => {
   try {
-    const res = await processStepsAPI.getAll();
-    const steps = res.data;
+    let steps = [];
+    try {
+      const heritageRes = await heritageAPI.getAll();
+      const heritageId = heritageRes.data?.[0]?.id;
+      const res = await processStepsAPI.getAll(
+        heritageId ? { heritage_id: heritageId } : undefined
+      );
+      steps = res.data || [];
+    } catch (apiError) {
+      console.warn('工序 API 不可用，使用示例数据:', apiError);
+    }
+
+    if (!steps.length) {
+      steps = Array.from({ length: 36 }, (_, i) => ({
+        step_name: `第${i + 1}步`,
+        est_duration_hours: 4 + (i % 8),
+        skill_level: 1 + (i % 5)
+      }));
+    }
 
     const stepNames = steps.map(s => s.step_name);
     const durations = steps.map(s => s.est_duration_hours);
@@ -583,90 +601,35 @@ const loadRegionMapChart = async () => {
       backgroundColor: 'transparent',
     };
 
-    // 动态加载中国地图数据
-    try {
-      // 尝试多个地图数据源
-      let mapJson = null;
-      const mapSources = [
-        'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json',
-        'https://echarts.apache.org/examples/data/asset/geo/China.json'
-      ];
+    // 加载中国地图（优先本地 /geo/china.json）
+    const mapRegistered = await registerChinaMap('china');
 
-      for (const source of mapSources) {
-        try {
-          const response = await fetch(source);
-          if (response.ok) {
-            mapJson = await response.json();
-            break;
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-
-      if (mapJson) {
-        echarts.registerMap('china', mapJson);
-        regionMapChart.setOption(mapOption);
-      } else {
-        throw new Error('无法加载地图数据');
-      }
-    } catch (err) {
-      console.warn('无法加载地图数据，使用备用方案:', err);
-      // 使用散点图作为备用方案
+    if (mapRegistered) {
+      regionMapChart.setOption(mapOption);
+    } else {
+      console.warn('无法加载地图数据，使用柱状图备用方案');
       regionMapChart.setOption({
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b}<br/>传承人数量: {c}'
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '8%', bottom: '3%', containLabel: true },
+        xAxis: {
+          type: 'value',
+          axisLabel: { color: themeColors.accentGold },
+          axisLine: { lineStyle: { color: themeColors.accentGold } }
         },
-        geo: {
-          map: 'china',
-          roam: true,
-          itemStyle: {
-            areaColor: themeColors.secondary,
-            borderColor: themeColors.accentGold,
-            borderWidth: 1
-          },
-          emphasis: {
-            itemStyle: {
-              areaColor: themeColors.primary
-            }
-          },
-          label: {
-            show: true,
-            color: themeColors.accentGold
-          }
+        yAxis: {
+          type: 'category',
+          data: mapData.map((item) => item.fullName || item.name).reverse(),
+          axisLabel: { color: themeColors.accentGold, fontSize: 10 },
+          axisLine: { lineStyle: { color: themeColors.accentGold } }
         },
         series: [{
-          type: 'scatter',
-          coordinateSystem: 'geo',
-          data: mapData.map(item => {
-            // 简化的坐标映射（实际应该使用真实坐标）
-            const coords = {
-              '黑龙江': [126.65, 45.75], // 哈尔滨
-              '浙江': [120.15, 30.28],
-              '江苏': [118.78, 32.04],
-              '北京': [116.46, 39.92],
-              '山东': [117.00, 36.65],
-              '广东': [113.23, 23.16],
-              '四川': [104.06, 30.67],
-              '湖北': [114.31, 30.52],
-              '湖南': [112.94, 28.19],
-              '河南': [113.65, 34.76]
-            };
-            return {
-              name: item.fullName || item.name,
-              value: [...(coords[item.name] || [116.46, 39.92]), item.value]
-            };
-          }),
-          symbolSize: (val) => Math.max(val[2] * 8, 20),
+          type: 'bar',
+          data: mapData.map((item) => item.value).reverse(),
           itemStyle: {
-            color: themeColors.primary
-          },
-          label: {
-            show: true,
-            formatter: '{b}\n{c}',
-            color: themeColors.accentGold,
-            fontSize: 10
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: themeColors.primary },
+              { offset: 1, color: themeColors.accentGold }
+            ])
           }
         }],
         backgroundColor: 'transparent'
@@ -678,11 +641,14 @@ const loadRegionMapChart = async () => {
 };
 
 // 更新地区图表视图
-const updateRegionChart = () => {
+const updateRegionChart = async () => {
+  await nextTick();
   if (regionViewMode.value === 'map') {
-    loadRegionMapChart();
+    await loadRegionMapChart();
+    regionMapChart?.resize();
   } else {
-    loadRegionChart();
+    await loadRegionChart();
+    regionChart?.resize();
   }
 };
 

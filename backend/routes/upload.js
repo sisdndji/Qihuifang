@@ -48,9 +48,12 @@ router.post('/', authenticateToken, requireAdmin, upload.single('file'), (req, r
       return res.status(400).json({ error: '未选择文件' });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const filePath = `/uploads/${req.file.filename}`;
+    const fileUrl = config.publicBaseUrl ? `${config.publicBaseUrl}${filePath}` : filePath;
+
     res.json({
       url: fileUrl,
+      path: filePath,
       filename: req.file.filename,
       size: req.file.size,
       message: '上传成功'

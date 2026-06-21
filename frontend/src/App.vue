@@ -20,16 +20,20 @@ import { platformAPI } from './api/platform';
 const route = useRoute();
 
 const isAdminRoute = computed(() => route.path.startsWith('/admin'));
-const isLoginRoute = computed(() => route.name === 'Login');
+const isAuthPage = computed(() => route.name === 'Login' || route.name === 'Register');
 
-const showHeader = computed(() => !isLoginRoute.value && !isAdminRoute.value);
-const showFooter = computed(() => !isLoginRoute.value && !isAdminRoute.value);
+const showHeader = computed(() => !isAuthPage.value && !isAdminRoute.value);
+const showFooter = computed(() => !isAuthPage.value && !isAdminRoute.value);
 
 watch(
   () => route.fullPath,
-  () => {
-    if (!isLoginRoute.value && !isAdminRoute.value) {
-      platformAPI.trackVisit().catch(() => {});
+  async () => {
+    if (!isAuthPage.value && !isAdminRoute.value) {
+      try {
+        await platformAPI.trackVisit();
+      } catch {
+        // 访问量记录失败不影响页面展示
+      }
     }
   },
   { immediate: true }

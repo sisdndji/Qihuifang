@@ -1,0 +1,15 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "node server.mjs"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Railway Variables（前端服务）:
+# BACKEND_URL = https://你的后端域名.up.railway.app
+#
+# 部署前请将以下目录提交到 Git（云构建时会同步到 public/）：
+#   Picture/          非遗与作品原图
+#   assets/masters/   传承人头像

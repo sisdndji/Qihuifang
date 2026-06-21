@@ -5,6 +5,6 @@ export const platformAPI = {
     return axiosInstance.get('/platform/stats');
   },
   trackVisit: () => {
-    return axiosInstance.post('/platform/visit');
+    return axiosInstance.get('/platform/visit');
   }
 };

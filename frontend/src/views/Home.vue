@@ -66,7 +66,7 @@
         <div class="featured-master-card">
           <div class="master-visual">
             <div class="master-image-wrapper">
-              <img :src="linanMaster?.avatar_url || '/images/masters/chenzaitian.jpg'" alt="李囡" class="master-image" />
+              <img :src="linanAvatarUrl" alt="李囡" class="master-image" />
               <div class="master-image-overlay"></div>
               <div class="master-badge-floating">
                 <el-icon><Trophy /></el-icon>
@@ -129,7 +129,7 @@
           <div class="master-works-grid">
             <div class="work-card" v-for="work in featuredWorks" :key="work.id">
               <div class="work-image-container">
-                <img :src="work.image" :alt="work.title" class="work-image" />
+                <img :src="resolveMediaUrl(work.image)" :alt="work.title" class="work-image" />
                 <div class="work-overlay-new">
                   <div class="work-info">
                     <h4 class="work-title">{{ work.title }}</h4>
@@ -214,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { VideoPlay, User, Trophy, MagicStick, ColdDrink, MapLocation, ArrowRight, Picture, ZoomIn } from '@element-plus/icons-vue';
 import { heritageAPI } from '../api/heritage';
@@ -224,6 +224,7 @@ import MainContainer from '../components/MainContainer.vue';
 import HeritageCard from '../components/HeritageCard.vue';
 import MasterCard from '../components/MasterCard.vue';
 import ProcessTimeline from '../components/ProcessTimeline.vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const router = useRouter();
 
@@ -233,6 +234,9 @@ const heritageItems = ref([]);
 const masters = ref([]);
 const processSteps = ref([]);
 const linanMaster = ref(null);
+const linanAvatarUrl = computed(() =>
+  resolveMediaUrl(linanMaster.value?.avatar_url) || '/masters/linan.jpg'
+);
 const distributionSummary = ref({
   totalMasters: 0,
   provinceCount: 0,

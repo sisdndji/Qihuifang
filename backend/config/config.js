@@ -4,8 +4,11 @@ module.exports = {
   port: process.env.PORT || 3000,
   jwtSecret: process.env.JWT_SECRET || 'heritage-lacquer-museum-secret-key-2024',
   jwtExpiresIn: '7d',
-  dbPath: './heritage.db',
-  uploadDir: './uploads',
+  dbPath: process.env.DB_PATH || './heritage.db',
+  uploadDir: process.env.UPLOAD_DIR || './uploads',
+  /** 后端公网地址（不含 /api），用于返回上传文件的完整 URL */
+  publicBaseUrl: (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, ''),
+  frontendUrl: process.env.FRONTEND_URL || '',
   platformStats: {
     userBase: parseInt(process.env.PLATFORM_USER_BASE, 10) || 1560,
     pageViewBase: parseInt(process.env.PLATFORM_PAGEVIEW_BASE, 10) || 246000

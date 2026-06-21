@@ -6,7 +6,7 @@
         <div class="detail-header">
           <div
             class="header-image"
-            :style="{ backgroundImage: `url(${heritage.image_url || defaultImage})` }"
+            :style="{ backgroundImage: `url(${resolveMediaUrl(heritage.image_url) || defaultImage})` }"
           >
             <div class="header-overlay">
               <h1 class="header-title">{{ heritage.name }}</h1>
@@ -89,6 +89,7 @@ import MainContainer from '../components/MainContainer.vue';
 import ProcessTimeline from '../components/ProcessTimeline.vue';
 import CommentSection from '../components/CommentSection.vue';
 import MasterCard from '../components/MasterCard.vue';
+import { resolveMediaUrl } from '../utils/media';
 
 const route = useRoute();
 

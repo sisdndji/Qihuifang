@@ -6,7 +6,7 @@
         <div class="header-text">
           <span class="page-tag">Platform Analytics</span>
           <h1 class="page-title">平台数据统计</h1>
-          <p class="page-desc">实时查看平台用户规模与访问热度，了解前台展示数据的构成与来源</p>
+          <p class="page-desc">实时查看平台用户规模与访问热度，数据仅在本后台可见</p>
         </div>
         <div class="header-actions">
           <span class="update-time" v-if="stats?.breakdown?.lastUpdated">
@@ -30,7 +30,7 @@
         <div class="metric-body">
           <div class="metric-label">平台现有用户</div>
           <div class="metric-value">{{ stats?.userCountDisplay || '--' }}</div>
-          <div class="metric-sub">前台展示的用户总量</div>
+          <div class="metric-sub">注册用户 + 配置基数</div>
         </div>
         <div class="metric-decoration"></div>
       </div>
@@ -103,26 +103,8 @@
       </div>
     </section>
 
-    <!-- 底部双栏 -->
+    <!-- 统计规则 -->
     <section class="info-section">
-      <div class="info-card preview-card">
-        <h3 class="info-title">
-          <el-icon><Monitor /></el-icon>
-          前台展示预览
-        </h3>
-        <div class="preview-box">
-          <div class="preview-footer-mock">
-            <div class="preview-divider"></div>
-            <div class="preview-stats">
-              <span>平台用户 <strong>{{ stats?.userCountDisplay || '--' }}</strong></span>
-              <span class="preview-sep">|</span>
-              <span>浏览量 <strong>{{ stats?.pageViewsDisplay || '--' }}</strong> 次</span>
-            </div>
-            <p class="preview-note">以上数据将展示在网站页脚，所有访客可见</p>
-          </div>
-        </div>
-      </div>
-
       <div class="info-card config-card">
         <h3 class="info-title">
           <el-icon><Setting /></el-icon>
@@ -160,7 +142,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import * as echarts from 'echarts';
 import {
-  User, View, Refresh, Clock, PieChart, Monitor, Setting, InfoFilled, MapLocation
+  User, View, Refresh, Clock, PieChart, Setting, InfoFilled, MapLocation
 } from '@element-plus/icons-vue';
 import { platformAPI } from '../../api/platform';
 import { mastersAPI } from '../../api/masters';
