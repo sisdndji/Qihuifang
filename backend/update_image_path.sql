@@ -47,14 +47,14 @@ UPDATE masters SET avatar_url = '/masters/chenzaitian.jpg' WHERE name = '陈在�
 UPDATE masters SET avatar_url = '/masters/zhoujingwen.jpg' WHERE name = '周静闻';
 UPDATE masters SET avatar_url = '/masters/linyizhou.jpg'  WHERE name = '林意舟';
 UPDATE masters SET avatar_url = '/masters/hemochuan.jpg'  WHERE name = '何墨川';
-UPDATE masters SET avatar_url = '/masters/linan.jpg'      WHERE name = '李囡';
+UPDATE masters SET avatar_url = '/6.jpg'      WHERE name = '李囡';
 
 -- 旧路径兼容
 UPDATE masters SET avatar_url = '/masters/chenzaitian.jpg'
 WHERE avatar_url = '/images/masters/chenzaitian.jpg';
 
-UPDATE masters SET avatar_url = '/masters/linan.jpg'
-WHERE avatar_url IN ('/images/masters/chenzaitian.jpg', '/images/masters/linan.jpg')
+UPDATE masters SET avatar_url = '/6.jpg'
+WHERE avatar_url IN ('/images/masters/chenzaitian.jpg', '/images/masters/linan.jpg', '/masters/linan.jpg')
   AND name = '李囡';
 
 -- 误设为 /6.jpg 的头像
@@ -66,9 +66,12 @@ UPDATE masters SET avatar_url = '/masters/' ||
     WHEN '周静闻' THEN 'zhoujingwen.jpg'
     WHEN '林意舟' THEN 'linyizhou.jpg'
     WHEN '何墨川' THEN 'hemochuan.jpg'
-    WHEN '李囡'   THEN 'linan.jpg'
+    WHEN '李囡'   THEN '6.jpg'
   END
-WHERE avatar_url = '/6.jpg';
+WHERE avatar_url = '/6.jpg' AND name != '李囡';
+
+-- 李囡头像统一为 /6.jpg
+UPDATE masters SET avatar_url = '/6.jpg' WHERE name = '李囡';
 
 -- 头像为空时按姓名补全
 UPDATE masters SET avatar_url = '/masters/lishouqi.jpg'
@@ -89,8 +92,8 @@ WHERE name = '林意舟' AND (avatar_url IS NULL OR avatar_url = '');
 UPDATE masters SET avatar_url = '/masters/hemochuan.jpg'
 WHERE name = '何墨川' AND (avatar_url IS NULL OR avatar_url = '');
 
-UPDATE masters SET avatar_url = '/masters/linan.jpg'
-WHERE name = '李囡' AND (avatar_url IS NULL OR avatar_url = '');
+UPDATE masters SET avatar_url = '/6.jpg'
+WHERE name = '李囡' AND (avatar_url IS NULL OR avatar_url = '' OR avatar_url LIKE 'http%');
 
 -- ── 4. 李囡作品 → /works/ ──
 UPDATE works SET image_url = '/works/work-2.jpg'

@@ -207,9 +207,7 @@ const handleVideoError = () => {
 };
 
 // 头像 URL（上传图走后端域名）
-const avatarUrl = computed(() =>
-  resolveMediaUrl(masterInfo.value?.avatar_url) || '/masters/linan.jpg'
-);
+const avatarUrl = computed(() => resolveMediaUrl(masterInfo.value?.avatar_url) || '/6.jpg');
 
 onMounted(() => {
   fetchMasterInfo();

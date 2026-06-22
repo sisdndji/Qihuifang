@@ -234,9 +234,8 @@ const heritageItems = ref([]);
 const masters = ref([]);
 const processSteps = ref([]);
 const linanMaster = ref(null);
-const linanAvatarUrl = computed(() =>
-  resolveMediaUrl(linanMaster.value?.avatar_url) || '/masters/linan.jpg'
-);
+const LINAN_AVATAR = '/6.jpg';
+const linanAvatarUrl = computed(() => LINAN_AVATAR);
 const distributionSummary = ref({
   totalMasters: 0,
   provinceCount: 0,

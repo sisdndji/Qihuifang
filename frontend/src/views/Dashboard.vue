@@ -163,16 +163,15 @@ const initCharts = async () => {
     await loadRiskChart();
   }
 
-  // 地区分布图
-  if (regionChartRef.value) {
-    regionChart = echarts.init(regionChartRef.value);
-    await loadRegionChart();
-  }
-
-  // 地图图表
+  // 地区分布：默认地图视图，仅初始化当前可见图表
   if (regionMapChartRef.value) {
     regionMapChart = echarts.init(regionMapChartRef.value);
     await loadRegionMapChart();
+  }
+
+  if (regionViewMode.value === 'bar' && regionChartRef.value) {
+    regionChart = echarts.init(regionChartRef.value);
+    await loadRegionChart();
   }
 
   // 作品数量图
@@ -199,6 +198,13 @@ const initCharts = async () => {
 
   // 窗口大小变化时调整图表
   window.addEventListener('resize', handleResize);
+
+  // 云环境布局完成后重新计算图表尺寸
+  await nextTick();
+  requestAnimationFrame(() => {
+    handleResize();
+    regionMapChart?.resize();
+  });
 };
 
 // 加载工序图表
@@ -293,8 +299,20 @@ const loadProcessChart = async () => {
 // 加载桑基图
 const loadSankeyChart = async () => {
   try {
-    const res = await processStepsAPI.getAll();
-    const steps = res.data;
+    let steps = [];
+    try {
+      const res = await processStepsAPI.getAll();
+      steps = res.data || [];
+    } catch (apiError) {
+      console.warn('桑基图 API 不可用，使用示例数据:', apiError);
+    }
+
+    if (!steps.length) {
+      steps = Array.from({ length: 36 }, (_, i) => ({
+        step_order: i + 1,
+        est_duration_hours: 4 + (i % 6)
+      }));
+    }
 
     // 将36步归类成阶段
     const stages = {
@@ -644,9 +662,15 @@ const loadRegionMapChart = async () => {
 const updateRegionChart = async () => {
   await nextTick();
   if (regionViewMode.value === 'map') {
+    if (!regionMapChart && regionMapChartRef.value) {
+      regionMapChart = echarts.init(regionMapChartRef.value);
+    }
     await loadRegionMapChart();
     regionMapChart?.resize();
   } else {
+    if (!regionChart && regionChartRef.value) {
+      regionChart = echarts.init(regionChartRef.value);
+    }
     await loadRegionChart();
     regionChart?.resize();
   }
@@ -878,8 +902,9 @@ const handleResize = () => {
   skillChart?.resize();
 };
 
-onMounted(() => {
-  initCharts();
+onMounted(async () => {
+  await initCharts();
+  setTimeout(() => handleResize(), 300);
 });
 
 onUnmounted(() => {
