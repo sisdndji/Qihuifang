@@ -1,0 +1,59 @@
+# 云服务器 Nginx 配置示例
+# 用法: 复制到 /etc/nginx/sites-available/heritage 后 nginx -t && systemctl reload nginx
+#
+# 前提: 后端已构建前端并单进程运行（推荐）
+#   cd frontend && npm install && npm run build
+#   cd ../backend && npm install && npm start
+# 后端默认监听 3001，同时提供页面 + /api
+
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    client_max_body_size 20M;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# --- 若前后端分开部署（frontend 用 server.mjs:4173，backend:3001）---
+# server {
+#     listen 80;
+#     server_name your-domain.com;
+#
+#     location / {
+#         proxy_pass http://127.0.0.1:4173;
+#         proxy_set_header Host $host;
+#     }
+# }
+#
+# --- 若 Nginx 直接托管 dist 静态文件，必须单独转发 /api ---
+# server {
+#     listen 80;
+#     server_name your-domain.com;
+#     root /var/www/heritage/frontend/dist;
+#     index index.html;
+#
+#     location /api/ {
+#         proxy_pass http://127.0.0.1:3001;
+#         proxy_set_header Host $host;
+#     }
+#
+#     location /uploads/ {
+#         proxy_pass http://127.0.0.1:3001;
+#     }
+#
+#     location /app-config.json {
+#         proxy_pass http://127.0.0.1:3001;
+#     }
+#
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+# }

@@ -1,7 +1,12 @@
 require('dotenv').config();
+const path = require('path');
+
+const frontendDistPath = process.env.FRONTEND_DIST
+  ? path.resolve(process.env.FRONTEND_DIST)
+  : path.resolve(__dirname, '../frontend/dist');
 
 module.exports = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 3001,
   jwtSecret: process.env.JWT_SECRET || 'heritage-lacquer-museum-secret-key-2024',
   jwtExpiresIn: '7d',
   dbPath: process.env.DB_PATH || './heritage.db',
@@ -9,6 +14,9 @@ module.exports = {
   /** 后端公网地址（不含 /api），用于返回上传文件的完整 URL */
   publicBaseUrl: (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, ''),
   frontendUrl: process.env.FRONTEND_URL || '',
+  /** 云服务器单进程部署：托管 frontend/dist，/api 与页面同源，避免 Nginx 未代理导致 404 */
+  frontendDistPath,
+  serveFrontend: process.env.SERVE_FRONTEND !== 'false',
   platformStats: {
     userBase: parseInt(process.env.PLATFORM_USER_BASE, 10) || 1560,
     pageViewBase: parseInt(process.env.PLATFORM_PAGEVIEW_BASE, 10) || 246000

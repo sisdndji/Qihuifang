@@ -126,6 +126,21 @@ const createTables = () => {
   });
 };
 
+// 旧库兼容：注册功能依赖 display_name 字段
+const migrateUsersTable = () => {
+  return new Promise((resolve) => {
+    db.run('ALTER TABLE users ADD COLUMN display_name TEXT', (err) => {
+      if (err && !err.message.includes('duplicate column')) {
+        console.warn('users 表迁移 display_name:', err.message);
+      }
+      db.run(
+        "UPDATE users SET display_name = username WHERE display_name IS NULL OR display_name = ''",
+        () => resolve()
+      );
+    });
+  });
+};
+
 // 检查表是否为空
 const isTableEmpty = (tableName) => {
   return new Promise((resolve, reject) => {
@@ -412,6 +427,7 @@ const initDb = async () => {
     console.log('开始初始化数据库...');
     await createTables();
     console.log('✓ 数据表创建完成');
+    await migrateUsersTable();
     await seedData();
     await seedCrawledDataIfEmpty();
     console.log('✓ 数据库初始化完成');

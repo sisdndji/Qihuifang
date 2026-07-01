@@ -61,7 +61,7 @@ npm install
 npm run dev
 ```
 
-后端服务将在 `http://localhost:3000` 启动。
+后端服务将在 `http://localhost:3001` 启动。
 
 首次运行时会自动创建数据库并插入初始数据（包括管理员账号、非遗项目、36道工序、传承人、作品等）。
 
@@ -125,6 +125,7 @@ npm run dev
 
 ### 认证
 - `POST /api/auth/login` - 用户登录
+- `POST /api/auth/register` - 用户注册
 
 ### 非遗项目
 - `GET /api/heritage` - 获取项目列表

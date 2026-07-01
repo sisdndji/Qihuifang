@@ -52,6 +52,7 @@ npm start
 ### 认证相关
 
 - `POST /api/auth/login` - 用户登录
+- `POST /api/auth/register` - 用户注册
 
 ### 非遗项目
 
@@ -94,7 +95,7 @@ npm start
 
 配置文件位于 `config/config.js`，可以设置：
 
-- 端口号（默认 3000）
+- 端口号（默认 3001）
 - JWT 密钥
 - 数据库路径
 - 上传目录

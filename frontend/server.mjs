@@ -13,7 +13,7 @@ const BACKEND_URL = (
   process.env.BACKEND_URL
   || process.env.VITE_API_ORIGIN
   || process.env.VITE_API_BASE_URL?.replace(/\/api\/?$/, '')
-  || 'http://localhost:3000'
+  || 'http://localhost:3001'
 ).replace(/\/$/, '');
 
 const app = express();

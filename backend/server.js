@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 const { initDb } = require('./models/initDb');
 const errorHandler = require('./middleware/errorHandler');
@@ -47,6 +48,38 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: '服务运行正常' });
 });
 
+// 未匹配的 API 路由返回 JSON 404（避免被 SPA fallback 吞掉）
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `接口不存在: ${req.method} ${req.originalUrl}` });
+});
+
+// 生产环境：托管前端静态资源（云服务器单进程部署，/api 与页面同源）
+const frontendIndex = path.join(config.frontendDistPath, 'index.html');
+const canServeFrontend = config.serveFrontend && fs.existsSync(frontendIndex);
+
+if (canServeFrontend) {
+  app.get('/app-config.json', (req, res) => {
+    const apiOrigin = config.publicBaseUrl
+      || `${req.protocol}://${req.get('host')}`;
+    res.json({ apiBaseUrl: '/api', apiOrigin });
+  });
+
+  app.use(express.static(config.frontendDistPath, { index: false }));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(frontendIndex);
+  });
+
+  console.log(`✓ 前端静态资源: ${config.frontendDistPath}`);
+} else if (process.env.NODE_ENV === 'production') {
+  console.warn(
+    '⚠ 未找到 frontend/dist，仅提供 API。云服务器请执行: cd frontend && npm run build'
+  );
+}
+
 // 错误处理中间件
 app.use(errorHandler);
 
@@ -58,6 +91,9 @@ const startServer = async () => {
     const server = app.listen(config.port, () => {
       console.log(`服务器运行在 http://localhost:${config.port}`);
       console.log(`API 基础路径: http://localhost:${config.port}/api`);
+      if (canServeFrontend) {
+        console.log('部署模式: 单进程（页面 + API 同源，适用于云服务器 + Nginx 反代）');
+      }
     });
 
     // 处理端口占用错误

@@ -20,7 +20,7 @@ const createAuthResponse = (user) => {
       id: user.id,
       username: user.username,
       role: user.role,
-      displayName: user.display_name
+      displayName: user.display_name || user.username
     }
   };
 };
@@ -64,8 +64,12 @@ router.post('/register', async (req, res) => {
           [username, hashedPassword, 'viewer', name],
           function (insertErr) {
             if (insertErr) {
+              console.error('[auth/register]', insertErr.message);
               if (insertErr.message.includes('UNIQUE')) {
                 return res.status(409).json({ error: '用户名已被占用' });
+              }
+              if (insertErr.message.includes('display_name')) {
+                return res.status(500).json({ error: '数据库缺少 display_name 字段，请重启服务以自动迁移' });
               }
               return res.status(500).json({ error: '注册失败' });
             }
