@@ -2,6 +2,33 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const {
+  syncLinanWorkImages,
+  getLinanWorksGallery
+} = require('../services/linanWorksCrawler');
+
+// 李囡作品图库（含爬虫映射后的图片）
+router.get('/linan/gallery', async (req, res) => {
+  try {
+    const gallery = await getLinanWorksGallery();
+    res.json(gallery);
+  } catch (error) {
+    console.error('[works/linan/gallery]', error);
+    res.status(500).json({ error: '获取李囡作品失败' });
+  }
+});
+
+// 触发李囡作品图片爬虫（管理员）
+router.post('/linan/crawl', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await syncLinanWorkImages();
+    const gallery = await getLinanWorksGallery();
+    res.json({ ...result, gallery });
+  } catch (error) {
+    console.error('[works/linan/crawl]', error);
+    res.status(500).json({ error: '爬虫同步失败' });
+  }
+});
 
 // 获取所有作品（支持筛选）
 router.get('/', (req, res) => {

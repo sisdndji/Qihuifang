@@ -16,9 +16,21 @@ function ensureDir(dir) {
 
 function copyFile(src, dest) {
   if (!fs.existsSync(src)) return false;
-  ensureDir(path.dirname(dest));
-  fs.copyFileSync(src, dest);
-  return true;
+  try {
+    ensureDir(path.dirname(dest));
+    if (fs.existsSync(dest)) {
+      const srcStat = fs.statSync(src);
+      const destStat = fs.statSync(dest);
+      if (srcStat.size === destStat.size && srcStat.mtimeMs <= destStat.mtimeMs) {
+        return true;
+      }
+    }
+    fs.copyFileSync(src, dest);
+    return true;
+  } catch (err) {
+    console.warn(`跳过复制 ${path.basename(src)}: ${err.message}`);
+    return false;
+  }
 }
 
 function copyDir(srcDir, destDir) {
@@ -131,6 +143,26 @@ for (const [destName, srcCandidates] of Object.entries(WORK_IMAGE_MAP)) {
     }
   }
   if (!done) missing.push(`works/${destName}`);
+}
+
+// 7. 传承人统一头像 public/6.jpg（李囡及陈在田等旧路径均映射到此文件）
+const avatarSixCandidates = [
+  path.join(PUBLIC, 'images/masters/linan.jpg'),
+  path.join(mastersDest, 'linan.jpg'),
+  path.join(ROOT, 'assets/masters/linan.jpg'),
+  pictureRoot && path.join(pictureRoot, '36.jpg'),
+  pictureRoot && path.join(pictureRoot, '0.jpg'),
+  path.join(PUBLIC, 'Picture/0.jpg')
+].filter(Boolean);
+for (const src of avatarSixCandidates) {
+  if (copyFile(src, path.join(PUBLIC, '6.jpg'))) {
+    copied += 1;
+    console.log('✓ public/6.jpg（传承人统一头像）');
+    break;
+  }
+}
+if (!fs.existsSync(path.join(PUBLIC, '6.jpg'))) {
+  missing.push('public/6.jpg（需 linan.jpg 或 Picture/ 源图）');
 }
 
 console.log(`\n共同步 ${copied} 个文件`);

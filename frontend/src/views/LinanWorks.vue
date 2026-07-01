@@ -115,7 +115,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { worksAPI } from '../api/works';
-import { mastersAPI } from '../api/masters';
 import MainContainer from '../components/MainContainer.vue';
 import { resolveMediaUrl } from '../utils/media';
 
@@ -129,19 +128,10 @@ const defaultImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9
 const fetchWorks = async () => {
   loading.value = true;
   try {
-    // 先获取李囡的ID
-    const mastersRes = await mastersAPI.getAll({ region: '哈尔滨' });
-    const linan = mastersRes.data.find(m => m.name === '李囡');
-    
-    console.log('李囡信息:', linan);
-    
-    if (linan) {
-      const worksRes = await worksAPI.getAll({ master_id: linan.id });
-      console.log('获取到的作品数据:', worksRes.data);
-      works.value = worksRes.data || [];
-    } else {
-      console.warn('未找到李囡传承人信息');
-      works.value = [];
+    const res = await worksAPI.getLinanGallery();
+    works.value = res.data?.works || [];
+    if (works.value.length === 0) {
+      console.warn('李囡作品为空，可运行 node scripts/crawlLinanWorks.js 同步');
     }
   } catch (error) {
     console.error('获取作品失败:', error);

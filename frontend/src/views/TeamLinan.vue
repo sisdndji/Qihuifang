@@ -115,7 +115,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import MainContainer from '../components/MainContainer.vue';
 import WorkForm from '../components/WorkForm.vue';
-import { resolveMediaUrl } from '../utils/media';
+import { resolveMediaUrl, MASTER_AVATAR_URL } from '../utils/media';
 
 const loading = ref(false);
 const works = ref([]);
@@ -207,7 +207,7 @@ const handleVideoError = () => {
 };
 
 // 头像 URL（上传图走后端域名）
-const avatarUrl = computed(() => resolveMediaUrl(masterInfo.value?.avatar_url) || '/6.jpg');
+const avatarUrl = computed(() => resolveMediaUrl(masterInfo.value?.avatar_url) || MASTER_AVATAR_URL);
 
 onMounted(() => {
   fetchMasterInfo();

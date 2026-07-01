@@ -224,7 +224,7 @@ import MainContainer from '../components/MainContainer.vue';
 import HeritageCard from '../components/HeritageCard.vue';
 import MasterCard from '../components/MasterCard.vue';
 import ProcessTimeline from '../components/ProcessTimeline.vue';
-import { resolveMediaUrl } from '../utils/media';
+import { resolveMediaUrl, MASTER_AVATAR_URL } from '../utils/media';
 
 const router = useRouter();
 
@@ -234,8 +234,7 @@ const heritageItems = ref([]);
 const masters = ref([]);
 const processSteps = ref([]);
 const linanMaster = ref(null);
-const LINAN_AVATAR = '/6.jpg';
-const linanAvatarUrl = computed(() => LINAN_AVATAR);
+const linanAvatarUrl = computed(() => MASTER_AVATAR_URL);
 const distributionSummary = ref({
   totalMasters: 0,
   provinceCount: 0,

@@ -141,6 +141,20 @@ const migrateUsersTable = () => {
   });
 };
 
+// 旧库兼容：传承人头像统一为 /6.jpg
+const migrateMasterAvatars = () => {
+  return new Promise((resolve) => {
+    db.run(
+      `UPDATE masters SET avatar_url = '/6.jpg'
+       WHERE avatar_url IS NULL
+          OR avatar_url LIKE '/masters/%'
+          OR avatar_url LIKE '/images/masters/%'
+          OR avatar_url LIKE 'http%'`,
+      () => resolve()
+    );
+  });
+};
+
 // 检查表是否为空
 const isTableEmpty = (tableName) => {
   return new Promise((resolve, reject) => {
@@ -230,7 +244,7 @@ const seedData = async () => {
             generation: '第四代传承人',
             region: '福州',
             bio: '李守漆，福州漆艺世家第四代传人，深耕福州脱胎漆器髹饰技艺四十余年。福州脱胎漆器与景泰蓝、景德镇瓷器并称中国传统工艺"三宝"，其髹饰技艺于2006年列入首批国家级非物质文化遗产名录。他幼承家学，系统修习脱胎制坯、夏布裱褙、上灰打磨与层层髹漆等数十道工序，尤擅嵌螺钿与黑推光、色推光装饰——以天然贝壳薄片贴于漆胎，再罩光漆磨推至"光亮如镜"；推光漆面温润如玉，呈现闽都漆艺"色彩瑰丽"的典型风韵。代表作品《螺钿花鸟纹圆盒》将传统花鸟纹样与推光工艺相融合，多次入选省内外工艺美术展览；累计带徒二十余人，致力于器物制作领域的活态传承。',
-            avatar_url: '/masters/lishouqi.jpg',
+            avatar_url: '/6.jpg',
             main_heritage_id: heritageId,
             skill_tags: '螺钿,推光,器物制作,嵌螺钿,脱胎漆器',
             representative_works: '《螺钿花鸟纹圆盒》、《推光漆盘系列》、《嵌螺钿花鸟屏风》'
@@ -240,7 +254,7 @@ const seedData = async () => {
             generation: '第五代传承人',
             region: '扬州',
             bio: '张怀素，扬州漆器修复大师，师承著名修复专家，擅长金箔贴饰与古漆器修复。在修复过程中，她严格遵循传统工艺，使用天然大漆和传统材料，成功修复了数百件明清漆器珍品。其修复作品既保持了历史原貌，又恢复了器物的实用功能，在文博界享有盛誉。',
-            avatar_url: '/masters/zhanghuaisu.jpg',
+            avatar_url: '/6.jpg',
             representative_works: '修复《明代剔红漆盒》、《清代描金漆柜》、《修复漆器系列》'
           },
           {
@@ -248,7 +262,7 @@ const seedData = async () => {
             generation: '第三代传承人',
             region: '成都',
             bio: '陈在田，成都漆器制作大师，以重器制作和漆层控制技艺见长。他精通多层髹涂工艺，能够精确控制每层漆的厚度和干燥时间，制作出厚重沉稳、漆层均匀的大型漆器。其作品《大漆方鼎》高逾一米，漆层达三十六层，展现了高超的工艺水平。',
-            avatar_url: '/masters/chenzaitian.jpg',
+            avatar_url: '/6.jpg',
             representative_works: '《大漆方鼎》、《多层髹涂漆罐》、《重器系列》'
           },
           {
@@ -256,7 +270,7 @@ const seedData = async () => {
             generation: '第四代传承人',
             region: '景德镇',
             bio: '周静闻，景德镇漆器艺术家，开创性地将漆器工艺与陶瓷艺术相结合，形成独特的跨界风格。她将陶瓷的温润质感与漆器的光泽效果完美融合，创作出一系列具有现代审美的新式漆器作品。其创新实践为传统工艺的现代转化提供了新思路。',
-            avatar_url: '/masters/zhoujingwen.jpg',
+            avatar_url: '/6.jpg',
             representative_works: '《漆陶融合系列》、《现代漆器设计》、《跨界艺术作品集》'
           },
           {
@@ -264,7 +278,7 @@ const seedData = async () => {
             generation: '第五代传承人',
             region: '厦门',
             bio: '林意舟，厦门新中式漆器设计师，致力于将传统髹涂技艺与现代生活美学相结合。她设计的漆器作品既保留了传统工艺的精髓，又融入了现代简约的设计理念，深受年轻消费者喜爱。其作品多次参加国际设计展，为传统工艺的国际化传播做出贡献。',
-            avatar_url: '/masters/linyizhou.jpg',
+            avatar_url: '/6.jpg',
             representative_works: '《新中式漆器系列》、《现代生活漆器》、《设计作品集》'
           },
           {
@@ -272,7 +286,7 @@ const seedData = async () => {
             generation: '第四代传承人',
             region: '重庆',
             bio: '何墨川，重庆老漆器修复专家，专注于明清及民国时期漆器的修复与保护。他精通各种传统髹涂技法，能够准确识别不同时期的工艺特点，采用传统材料进行修复。四十余年来，他修复的漆器文物超过五百件，为文物保护事业做出了重要贡献。',
-            avatar_url: '/masters/hemochuan.jpg',
+            avatar_url: '/6.jpg',
             representative_works: '修复《清代漆器文物系列》、《明清漆器修复案例集》、《文物保护作品》'
           },
           {
@@ -428,8 +442,17 @@ const initDb = async () => {
     await createTables();
     console.log('✓ 数据表创建完成');
     await migrateUsersTable();
+    await migrateMasterAvatars();
     await seedData();
     await seedCrawledDataIfEmpty();
+
+    if (process.env.CRAWL_LINAN_WORKS !== 'false') {
+      const { syncLinanWorkImages } = require('../services/linanWorksCrawler');
+      syncLinanWorkImages()
+        .then((r) => console.log(`✓ 李囡作品爬虫: 更新 ${r.updated} 条`, r.source || ''))
+        .catch((err) => console.warn('李囡作品爬虫跳过:', err.message));
+    }
+
     console.log('✓ 数据库初始化完成');
   } catch (error) {
     console.error('数据库初始化失败:', error);

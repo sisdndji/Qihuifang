@@ -182,7 +182,7 @@ import {
   Location, Trophy, Medal, MagicStick, ColdDrink, Star, Collection
 } from '@element-plus/icons-vue';
 import MainContainer from '../components/MainContainer.vue';
-import { resolveMediaUrl } from '../utils/media';
+import { resolveMediaUrl, MASTER_AVATAR_URL } from '../utils/media';
 
 const masterInfo = ref({
   name: '李囡',
@@ -200,7 +200,7 @@ const worksLoading = ref(false);
 const defaultWorkImage =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRDdDMEE1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM0QjQ2M0YiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lm77niYfliqDovb3lpKflrabljLc8L3RleHQ+PC9zdmc+';
 
-const avatarUrl = computed(() => resolveMediaUrl(masterInfo.value?.avatar_url) || '/6.jpg');
+const avatarUrl = computed(() => resolveMediaUrl(masterInfo.value?.avatar_url) || MASTER_AVATAR_URL);
 
 const skillTags = computed(() => {
   const tags = masterInfo.value.skill_tags;

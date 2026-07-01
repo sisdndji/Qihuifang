@@ -7,6 +7,8 @@ export const worksAPI = {
   getStats: () => {
     return axiosInstance.get('/works/stats');
   },
+  getLinanGallery: () => axiosInstance.get('/works/linan/gallery'),
+  crawlLinanWorks: () => axiosInstance.post('/works/linan/crawl'),
   create: (data) => {
     return axiosInstance.post('/works', data);
   },
